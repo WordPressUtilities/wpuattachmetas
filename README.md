@@ -14,17 +14,19 @@ How to add fields :
 
 Put the code below in your theme's functions.php file. Add new fields to your convenance.
 
-    add_filter( 'wpuattachmetas_metas', 'set_wpuattachmetas_metas', 10, 3 );
-    function set_wpuattachmetas_metas( $fields ) {
-        $fields['wpu_media_price'] = array(
-            'label' => 'Price'
-        );
-        $fields['wpu_media_select'] = array(
-            'label' => 'Select',
-            'input' => 'select'
-        );
-        return $fields;
-    }
+```php
+add_filter( 'wpuattachmetas_metas', 'set_wpuattachmetas_metas', 10, 3 );
+function set_wpuattachmetas_metas( $fields ) {
+    $fields['wpu_media_price'] = array(
+        'label' => 'Price'
+    );
+    $fields['wpu_media_select'] = array(
+        'label' => 'Select',
+        'input' => 'select'
+    );
+    return $fields;
+}
+```
 
 Fields parameters :
 ---
