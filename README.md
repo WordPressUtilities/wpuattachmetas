@@ -12,7 +12,7 @@ How to install :
 How to add fields :
 --
 
-Put the code below in your theme's functions.php file. Add new fields to your convenance.
+Put the code below in your theme's functions.php file. Add new fields at your convenience.
 
 ```php
 add_filter( 'wpuattachmetas_metas', 'set_wpuattachmetas_metas', 10, 3 );
@@ -31,20 +31,21 @@ function set_wpuattachmetas_metas( $fields ) {
 Fields parameters :
 ---
 
-* "label" : String (optional) / Adds a label to the field administration. Default to ID value.
-* "helps" : String (optional) / Adds a help string under the field.
+* "label" : String (optional) / Add a label to the field administration. Default to ID value.
+* "helps" : String (optional) / Add a help string under the field.
 * "input" : String (optional) / Set a kind of form field. Default to "text".
 * "show_in_edit" : Bool (optional) / Show/Hide in edit view.
 * "show_in_modal" : Bool (optional) / Show/Hide in modal view.
 * "required" : Bool (optional) / Field is required.
+* "select_values" : Array (optional) / Associative arrays with keys and labels for a selector.
 
 Input types :
 ---
 
 * "text" : input type text.
 * "textarea" : input type textarea.
-* "select" : display a select based on the values contained in the parameter "select_values"
-* "html" : display the content of the parameter named "html".
+* "select" : Display a select based on the values contained in "select_values".
+* "html" : Display the content of the parameter named "html".
 
 Roadmap :
 ---
