@@ -28,6 +28,15 @@ function set_wpuattachmetas_metas( $fields ) {
 }
 ```
 
+How to hide default fields ( caption & alt-text ) :
+--
+
+Put the code below in your theme's functions.php file.
+
+```php
+add_filter('wpuattachmetas_hide_default_fields', '__return_false');
+```
+
 Fields parameters :
 ---
 
@@ -43,6 +52,9 @@ Input types :
 ---
 
 * "text" : input type text.
+* "number" : input type number.
+* "url" : input type url.
+* "email" : input type email.
 * "textarea" : input type textarea.
 * "select" : Display a select based on the values contained in "select_values".
 * "html" : Display the content of the parameter named "html".

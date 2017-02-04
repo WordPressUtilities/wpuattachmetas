@@ -1,0 +1,29 @@
+@charset "UTF-8";
+
+/* Hide Alt & Caption in media sidebar */
+
+.media-sidebar [data-setting="alt"],
+.media-sidebar [data-setting="caption"] {
+    display: none;
+}
+
+/* Hide Alt & Caption in media frame */
+
+.media-frame-content .setting.caption,
+.media-frame-content .setting.alt-text {
+    display: none;
+}
+
+.media-frame-content .setting.alt-text + h2 {
+    padding-top: 0;
+    border-top: 0;
+}
+
+/* Hide Alt & Caption on attachment page */
+
+.wp_attachment_details.edit-form-section > p textarea,
+.wp_attachment_details.edit-form-section > p input,
+.wp_attachment_details.edit-form-section > p br,
+.wp_attachment_details.edit-form-section > p label {
+    display: none;
+}

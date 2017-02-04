@@ -4,7 +4,7 @@
 Plugin Name: WPU Attachments Metas
 Plugin URI: https://github.com/WordPressUtilities/wpuattachmetas
 Description: Metadatas for Attachments
-Version: 0.2
+Version: 0.3
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -18,10 +18,26 @@ class WPUAttachMetas {
     private $metas = array();
 
     public function __construct() {
+        add_action('wp_loaded', array(&$this, 'wp_loaded'));
         /* Display fields */
         add_filter('attachment_fields_to_edit', array(&$this, 'display_custom_fields'), 10, 2);
         /* Save values */
         add_action('edit_attachment', array(&$this, 'save_custom_fields'), 20);
+        /* Load custom CSS */
+        add_action('admin_enqueue_scripts', array(&$this, 'admin_css'), 11);
+    }
+
+    public function wp_loaded() {
+        /* Load translation */
+        load_plugin_textdomain('wpuattachmetas', false, dirname(plugin_basename(__FILE__)) . '/lang/');
+
+    }
+
+    public function admin_css() {
+        $hide_default_fields = apply_filters('wpuattachmetas_hide_default_fields', false);
+        if ($hide_default_fields) {
+            wp_enqueue_style('wpuattachmetas_hide_default_fields', plugins_url('assets/css/hide-default-fields.css', __FILE__));
+        }
     }
 
     /**
@@ -49,16 +65,31 @@ class WPUAttachMetas {
                 $meta['label'] = ucfirst($key);
             }
             if (!isset($meta['select_values'])) {
-                $meta['select_values'] = array(__('No'), __('Yes'));
+                $meta['select_values'] = array(__('No', 'wpuattachmetas'), __('Yes', 'wpuattachmetas'));
             }
-            if ($meta['input'] == 'select') {
+
+            $input = $meta['input'];
+            if ($input != 'text') {
                 $meta['input'] = 'html';
-                $meta['html'] = '<select ' . $field_idnamehtml . '><option value="" disabled selected style="display:none;">' . __('Select') . '</option>';
+            }
+
+            switch ($input) {
+            case 'select':
+                $meta['html'] = '<select ' . $field_idnamehtml . '><option value="" disabled selected style="display:none;">' . __('Select', 'wpuattachmetas') . '</option>';
                 foreach ($meta['select_values'] as $skey => $var) {
                     $meta['html'] .= '<option ' . ($meta['value'] == $skey ? 'selected' : '') . ' value="' . $skey . '">' . $var . '</option>';
                 }
                 $meta['html'] .= '</select>';
+                break;
+            case 'number':
+            case 'email':
+            case 'url':
+                $meta['html'] = '<input type="' . $input . '" class="text" ' . $field_idnamehtml . ' value="' . esc_attr($meta['value']) . '">';
+
+                break;
+
             }
+
             $this->metas[$key] = $meta;
         }
     }
@@ -80,6 +111,9 @@ class WPUAttachMetas {
     public function save_custom_fields($attachment_id) {
         $tmp_post = get_post($attachment_id);
         $this->load_metas($tmp_post);
+        if (!isset($_REQUEST['attachments'])) {
+            return;
+        }
         $_req = $_REQUEST['attachments'][$attachment_id];
         foreach ($this->metas as $key => $meta) {
             if (!isset($_req[$meta['key']])) {
@@ -91,6 +125,21 @@ class WPUAttachMetas {
             switch ($meta['original_input']) {
             case 'select':
                 if (!array_key_exists($new_value, $meta['select_values'])) {
+                    $new_value = $old_value;
+                }
+                break;
+            case 'email':
+                if (filter_var($new_value, FILTER_VALIDATE_EMAIL) === false) {
+                    $new_value = $old_value;
+                }
+                break;
+            case 'url':
+                if (filter_var($new_value, FILTER_VALIDATE_URL) === false) {
+                    $new_value = $old_value;
+                }
+                break;
+            case 'number':
+                if (!is_numeric($new_value)) {
                     $new_value = $old_value;
                 }
                 break;
