@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPU Attach Metas\n"
-"POT-Creation-Date: 2017-02-04 20:09+0100\n"
+"POT-Creation-Date: 2017-02-27 10:49+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Darklg <darklg.blog@gmail.com>\n"
 "Language-Team: \n"
@@ -15,14 +15,14 @@ msgstr ""
 "X-Poedit-KeywordsList: __;_e\n"
 "X-Poedit-SearchPath-0: ../.\n"
 
-#: .././wpuattachmetas.php:68
+#: .././wpuattachmetas.php:74
 msgid "No"
 msgstr "Non"
 
-#: .././wpuattachmetas.php:68
+#: .././wpuattachmetas.php:74
 msgid "Yes"
 msgstr "Oui"
 
-#: .././wpuattachmetas.php:78
+#: .././wpuattachmetas.php:84
 msgid "Select"
 msgstr "Sélectionner"

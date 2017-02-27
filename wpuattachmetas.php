@@ -4,7 +4,7 @@
 Plugin Name: WPU Attachments Metas
 Plugin URI: https://github.com/WordPressUtilities/wpuattachmetas
 Description: Metadatas for Attachments
-Version: 0.3
+Version: 0.4
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -38,6 +38,7 @@ class WPUAttachMetas {
         if ($hide_default_fields) {
             wp_enqueue_style('wpuattachmetas_hide_default_fields', plugins_url('assets/css/hide-default-fields.css', __FILE__));
         }
+        wp_enqueue_style('wpuattachmetas_style', plugins_url('assets/css/style.css', __FILE__));
     }
 
     /**
@@ -48,6 +49,10 @@ class WPUAttachMetas {
         if (!is_object($post)) {
             return;
         }
+
+        $screen = get_current_screen();
+        $is_rich_attachment_page = ($screen->base == 'post' && $screen->id == 'attachment');
+
         $metas = apply_filters('wpuattachmetas_metas', array());
         foreach ($metas as $key => $meta) {
             if (!isset($meta['input'])) {
@@ -64,6 +69,7 @@ class WPUAttachMetas {
             if (!isset($meta['label'])) {
                 $meta['label'] = ucfirst($key);
             }
+
             if (!isset($meta['select_values'])) {
                 $meta['select_values'] = array(__('No', 'wpuattachmetas'), __('Yes', 'wpuattachmetas'));
             }
@@ -81,13 +87,31 @@ class WPUAttachMetas {
                 }
                 $meta['html'] .= '</select>';
                 break;
+            case 'blank':
+                $meta['label'] = '<span class="wpuattachmetas-title" style="">&nbsp;<span>' . $meta['label'] . '</span></span>';
+                $meta['html'] = '&nbsp;';
+                break;
+            case 'editor':
+                if ($is_rich_attachment_page) {
+                    ob_start();
+                    wp_editor($meta['value'], $field_id, array(
+                        'media_buttons' => false,
+                        'teeny' => true,
+                        'textarea_name' => $field_name,
+                        'textarea_rows' => 2
+                    ));
+                    $screen = get_current_screen();
+                    $meta['html'] = ob_get_clean();
+                } else {
+                    $meta['html'] = '<textarea ' . $field_idnamehtml . ' >' . esc_html($meta['value']) . '</textarea>';
+                }
+                break;
             case 'number':
+            case 'date':
             case 'email':
             case 'url':
                 $meta['html'] = '<input type="' . $input . '" class="text" ' . $field_idnamehtml . ' value="' . esc_attr($meta['value']) . '">';
-
                 break;
-
             }
 
             $this->metas[$key] = $meta;
@@ -143,11 +167,14 @@ class WPUAttachMetas {
                     $new_value = $old_value;
                 }
                 break;
+            case 'editor':
+                // Keep the current value
+                break;
             default:
-
+                $new_value = esc_html($new_value);
             }
 
-            update_post_meta($attachment_id, $key, esc_html($new_value));
+            update_post_meta($attachment_id, $key, $new_value);
         }
     }
 
