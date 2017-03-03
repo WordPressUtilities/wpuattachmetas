@@ -4,7 +4,7 @@
 Plugin Name: WPU Attachments Metas
 Plugin URI: https://github.com/WordPressUtilities/wpuattachmetas
 Description: Metadatas for Attachments
-Version: 0.4
+Version: 0.4.1
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -50,8 +50,11 @@ class WPUAttachMetas {
             return;
         }
 
-        $screen = get_current_screen();
-        $is_rich_attachment_page = ($screen->base == 'post' && $screen->id == 'attachment');
+        $screen = false;
+        if (function_exists('get_current_screen')) {
+            $screen = get_current_screen();
+        }
+        $is_rich_attachment_page = (is_object($screen) && $screen->base == 'post' && $screen->id == 'attachment');
 
         $metas = apply_filters('wpuattachmetas_metas', array());
         foreach ($metas as $key => $meta) {
@@ -119,7 +122,7 @@ class WPUAttachMetas {
     }
 
     /**
-     * Disply custom fields
+     * Display custom fields
      */
     public function display_custom_fields($form_fields, $post) {
         $this->load_metas($post);
