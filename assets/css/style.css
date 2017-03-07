@@ -11,7 +11,7 @@
 }
 
 .compat-attachment-fields th {
-    width: 120px;
+    max-width: 34%;
     text-align: left;
 }
 
@@ -25,6 +25,11 @@
     box-sizing: border-box;
     margin-right: 0;
     padding-right: 4%;
+    white-space: normal;
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    hyphens: auto;
+    word-wrap: break-word;
 }
 
 /* ----------------------------------------------------------

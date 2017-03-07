@@ -2,6 +2,8 @@
 
 /* Hide Alt & Caption in media sidebar */
 
+.attachment-details [data-setting="alt"],
+.attachment-details [data-setting="caption"],
 .media-sidebar [data-setting="alt"],
 .media-sidebar [data-setting="caption"] {
     display: none;

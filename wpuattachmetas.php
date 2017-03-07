@@ -4,7 +4,7 @@
 Plugin Name: WPU Attachments Metas
 Plugin URI: https://github.com/WordPressUtilities/wpuattachmetas
 Description: Metadatas for Attachments
-Version: 0.4.1
+Version: 0.4.2
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -14,6 +14,7 @@ License URI: http://opensource.org/licenses/MIT
 class WPUAttachMetas {
 
     private $pluginkey = 'wpuattach_';
+    private $pluginversion = '0.4.2';
 
     private $metas = array();
 
@@ -36,9 +37,9 @@ class WPUAttachMetas {
     public function admin_css() {
         $hide_default_fields = apply_filters('wpuattachmetas_hide_default_fields', false);
         if ($hide_default_fields) {
-            wp_enqueue_style('wpuattachmetas_hide_default_fields', plugins_url('assets/css/hide-default-fields.css', __FILE__));
+            wp_enqueue_style('wpuattachmetas_hide_default_fields', plugins_url('assets/css/hide-default-fields.css', __FILE__), array(), $this->pluginversion);
         }
-        wp_enqueue_style('wpuattachmetas_style', plugins_url('assets/css/style.css', __FILE__));
+        wp_enqueue_style('wpuattachmetas_style', plugins_url('assets/css/style.css', __FILE__), array(), $this->pluginversion);
     }
 
     /**
