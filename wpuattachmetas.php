@@ -4,7 +4,7 @@
 Plugin Name: WPU Attachments Metas
 Plugin URI: https://github.com/WordPressUtilities/wpuattachmetas
 Description: Metadatas for Attachments
-Version: 0.5
+Version: 0.5.1
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ License URI: http://opensource.org/licenses/MIT
 class WPUAttachMetas {
 
     private $pluginkey = 'wpuattach_';
-    private $pluginversion = '0.5';
+    private $pluginversion = '0.5.1';
 
     private $metas = array();
 
@@ -106,21 +106,21 @@ class WPUAttachMetas {
                 $meta['html'] = '&nbsp;';
                 break;
             case 'attachment':
-                $preview_size = $is_rich_attachment_page ? 27 : 20;
-                $has_attachment = false;
-                $img_url = 'http://placehold.it/' . $preview_size . 'x' . $preview_size;
+                $_preview_size = $is_rich_attachment_page ? 27 : 20;
+                $_att_id = false;
+                $_img_url = 'http://placehold.it/' . $_preview_size . 'x' . $_preview_size;
                 if (is_numeric($meta['value'])) {
                     $src = wp_get_attachment_image_src($meta['value'], 'thumbnail');
                     if (is_array($src)) {
-                        $has_attachment = true;
-                        $img_url = $src[0];
+                        $_att_id = $meta['value'];
+                        $_img_url = $src[0];
                     }
                 }
-                $meta['html'] = '<div style="line-height:' . $preview_size . 'px">';
-                $meta['html'] .= '<img style="width:' . $preview_size . 'px;height:' . $preview_size . 'px;object-fit:cover;vertical-align:middle" src="' . $img_url . '"" alt="" /> ';
-                $_label = $has_attachment ? __('Change image', 'wpuattachmetas') : __('Add an image', 'wpuattachmetas');
+                $meta['html'] = '<div style="line-height:' . $_preview_size . 'px">';
+                $meta['html'] .= '<img style="width:' . $_preview_size . 'px;height:' . $_preview_size . 'px;object-fit:cover;vertical-align:middle" src="' . $_img_url . '"" alt="" /> ';
+                $_label = $_att_id !== false ? __('Change image', 'wpuattachmetas') : __('Add an image', 'wpuattachmetas');
                 if ($is_rich_attachment_page) {
-                    $meta['html'] .= '<button class="button primary wpuattachmetas-image-link" data-altlabel="' . esc_attr(__('Change image', 'wpuattachmetas')) . '" type="button">' . esc_html($_label) . '</button>';
+                    $meta['html'] .= '<button class="button primary wpuattachmetas-image-link" data-attid="' . ($_att_id !== false ? $_att_id : 0) . '" data-altlabel="' . esc_attr(__('Change image', 'wpuattachmetas')) . '" type="button">' . esc_html($_label) . '</button>';
                 } else {
                     $meta['html'] .= '<a target="_blank" style="display: inline-block;vertical-align:middle" href="' . get_edit_post_link($post->ID) . '">' . esc_html($_label) . '</a>';
                 }
