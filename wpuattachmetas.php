@@ -4,7 +4,7 @@
 Plugin Name: WPU Attachments Metas
 Plugin URI: https://github.com/WordPressUtilities/wpuattachmetas
 Description: Metadatas for Attachments
-Version: 0.4.2
+Version: 0.5
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ License URI: http://opensource.org/licenses/MIT
 class WPUAttachMetas {
 
     private $pluginkey = 'wpuattach_';
-    private $pluginversion = '0.4.2';
+    private $pluginversion = '0.5';
 
     private $metas = array();
 
@@ -40,6 +40,16 @@ class WPUAttachMetas {
             wp_enqueue_style('wpuattachmetas_hide_default_fields', plugins_url('assets/css/hide-default-fields.css', __FILE__), array(), $this->pluginversion);
         }
         wp_enqueue_style('wpuattachmetas_style', plugins_url('assets/css/style.css', __FILE__), array(), $this->pluginversion);
+        wp_enqueue_script('wpuattachmetas_script_image', plugins_url('assets/js/image.js', __FILE__), array(), $this->pluginversion);
+
+        $screen = false;
+        if (function_exists('get_current_screen')) {
+            $screen = get_current_screen();
+        }
+        if (is_object($screen) && $screen->base == 'post' && $screen->id == 'attachment') {
+            wp_enqueue_media();
+        }
+
     }
 
     /**
@@ -85,7 +95,7 @@ class WPUAttachMetas {
 
             switch ($input) {
             case 'select':
-                $meta['html'] = '<select ' . $field_idnamehtml . '><option value="" disabled selected style="display:none;">' . __('Select', 'wpuattachmetas') . '</option>';
+                $meta['html'] = '<select ' . $field_idnamehtml . '><option value="" disabled selected style="display:none">' . __('Select', 'wpuattachmetas') . '</option>';
                 foreach ($meta['select_values'] as $skey => $var) {
                     $meta['html'] .= '<option ' . ($meta['value'] == $skey ? 'selected' : '') . ' value="' . $skey . '">' . $var . '</option>';
                 }
@@ -94,6 +104,28 @@ class WPUAttachMetas {
             case 'blank':
                 $meta['label'] = '<span class="wpuattachmetas-title" style="">&nbsp;<span>' . $meta['label'] . '</span></span>';
                 $meta['html'] = '&nbsp;';
+                break;
+            case 'attachment':
+                $preview_size = $is_rich_attachment_page ? 27 : 20;
+                $has_attachment = false;
+                $img_url = 'http://placehold.it/' . $preview_size . 'x' . $preview_size;
+                if (is_numeric($meta['value'])) {
+                    $src = wp_get_attachment_image_src($meta['value'], 'thumbnail');
+                    if (is_array($src)) {
+                        $has_attachment = true;
+                        $img_url = $src[0];
+                    }
+                }
+                $meta['html'] = '<div style="line-height:' . $preview_size . 'px">';
+                $meta['html'] .= '<img style="width:' . $preview_size . 'px;height:' . $preview_size . 'px;object-fit:cover;vertical-align:middle" src="' . $img_url . '"" alt="" /> ';
+                $_label = $has_attachment ? __('Change image', 'wpuattachmetas') : __('Add an image', 'wpuattachmetas');
+                if ($is_rich_attachment_page) {
+                    $meta['html'] .= '<button class="button primary wpuattachmetas-image-link" data-altlabel="' . esc_attr(__('Change image', 'wpuattachmetas')) . '" type="button">' . esc_html($_label) . '</button>';
+                } else {
+                    $meta['html'] .= '<a target="_blank" style="display: inline-block;vertical-align:middle" href="' . get_edit_post_link($post->ID) . '">' . esc_html($_label) . '</a>';
+                }
+                $meta['html'] .= '<input type="hidden" ' . $field_idnamehtml . ' value="' . esc_attr($meta['value']) . '">';
+                $meta['html'] .= '</div>';
                 break;
             case 'editor':
                 if ($is_rich_attachment_page) {
@@ -166,6 +198,7 @@ class WPUAttachMetas {
                     $new_value = $old_value;
                 }
                 break;
+            case 'attachment':
             case 'number':
                 if (!is_numeric($new_value)) {
                     $new_value = $old_value;
@@ -182,6 +215,48 @@ class WPUAttachMetas {
         }
     }
 
+    public function admin_footer() {
+        echo <<<EOT
+<script>
+/* Delete image */
+jQuery('.azazazazaz .x').click(function(e) {
+    var \$this = jQuery(this),
+        \$parent = \$this.closest('.wpubasesettings-mediabox'),
+        \$imgPreview = \$parent.find('.img-preview');
+        \$imgField = \$parent.find('input[type="hidden"]');
+    e.preventDefault();
+    \$imgPreview.css({'display':'none'});
+    \$imgField.val('');
+});
+
+/* Add image */
+jQuery('.wpuattachmetas-image-link').click(function(e) {
+    var \$this = jQuery(this),
+        \$parent = \$this.parent(),
+        \$imgPreview = \$parent.find('img');
+        \$imgField = \$parent.find('input[type="hidden"]');
+
+    var frame = wp.media({multiple: false });
+
+    // When an image is selected in the media frame...
+    frame.on('select', function() {
+        var attachment = frame.state().get('selection').first().toJSON();
+        \$imgPreview.css({'display':'block'});
+        \$imgPreview.find('img').attr('src',attachment.url);
+        // Send the attachment id to our hidden input
+        \$imgField.val(attachment.id);
+        console.log(\$imgField);
+    });
+
+    // Finally, open the modal on click
+    frame.open();
+
+    e.preventDefault();
+});
+
+</script>
+EOT;
+    }
 }
 
 $WPUAttachMetas = new WPUAttachMetas();

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPU Attach Metas\n"
-"POT-Creation-Date: 2017-03-07 19:48+0100\n"
+"POT-Creation-Date: 2017-04-01 23:30+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Darklg <darklg.blog@gmail.com>\n"
 "Language-Team: \n"
@@ -15,14 +15,22 @@ msgstr ""
 "X-Poedit-KeywordsList: __;_e\n"
 "X-Poedit-SearchPath-0: ../.\n"
 
-#: .././wpuattachmetas.php:78
+#: .././wpuattachmetas.php:88
 msgid "No"
 msgstr "Non"
 
-#: .././wpuattachmetas.php:78
+#: .././wpuattachmetas.php:88
 msgid "Yes"
 msgstr "Oui"
 
-#: .././wpuattachmetas.php:88
+#: .././wpuattachmetas.php:98
 msgid "Select"
 msgstr "Sélectionner"
+
+#: .././wpuattachmetas.php:121 .././wpuattachmetas.php:123
+msgid "Change image"
+msgstr "Changer l’image"
+
+#: .././wpuattachmetas.php:121
+msgid "Add an image"
+msgstr "Ajouter une image"
