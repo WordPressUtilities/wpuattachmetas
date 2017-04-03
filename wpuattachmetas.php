@@ -4,7 +4,7 @@
 Plugin Name: WPU Attachments Metas
 Plugin URI: https://github.com/WordPressUtilities/wpuattachmetas
 Description: Metadatas for Attachments
-Version: 0.5.1
+Version: 0.5.2
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ License URI: http://opensource.org/licenses/MIT
 class WPUAttachMetas {
 
     private $pluginkey = 'wpuattach_';
-    private $pluginversion = '0.5.1';
+    private $pluginversion = '0.5.2';
 
     private $metas = array();
 

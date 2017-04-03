@@ -2,8 +2,10 @@
 
 /* Hide Alt & Caption in media sidebar */
 
+.attachment-details [data-setting="description"],
 .attachment-details [data-setting="alt"],
 .attachment-details [data-setting="caption"],
+.media-sidebar [data-setting="description"],
 .media-sidebar [data-setting="alt"],
 .media-sidebar [data-setting="caption"] {
     display: none;
@@ -23,6 +25,8 @@
 
 /* Hide Alt & Caption on attachment page */
 
+#wp-attachment_content-wrap,
+.wp_attachment_details.edit-form-section > label[for="attachment_content"],
 .wp_attachment_details.edit-form-section > p textarea,
 .wp_attachment_details.edit-form-section > p input,
 .wp_attachment_details.edit-form-section > p br,
