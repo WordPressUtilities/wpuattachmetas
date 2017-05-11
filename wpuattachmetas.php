@@ -4,7 +4,7 @@
 Plugin Name: WPU Attachments Metas
 Plugin URI: https://github.com/WordPressUtilities/wpuattachmetas
 Description: Metadatas for Attachments
-Version: 0.5.2
+Version: 0.5.3
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ License URI: http://opensource.org/licenses/MIT
 class WPUAttachMetas {
 
     private $pluginkey = 'wpuattach_';
-    private $pluginversion = '0.5.2';
+    private $pluginversion = '0.5.3';
 
     private $metas = array();
 
@@ -31,7 +31,6 @@ class WPUAttachMetas {
     public function wp_loaded() {
         /* Load translation */
         load_plugin_textdomain('wpuattachmetas', false, dirname(plugin_basename(__FILE__)) . '/lang/');
-
     }
 
     public function admin_css() {
@@ -72,6 +71,9 @@ class WPUAttachMetas {
             if (!isset($meta['input'])) {
                 $meta['input'] = 'text';
             }
+            if (!isset($meta['placeholder'])) {
+                $meta['placeholder'] = '';
+            }
             $meta['original_input'] = $meta['input'];
             $meta['key'] = $this->pluginkey . $key;
             $field_name = 'attachments[' . $post->ID . '][' . $meta['key'] . ']';
@@ -89,9 +91,7 @@ class WPUAttachMetas {
             }
 
             $input = $meta['input'];
-            if ($input != 'text') {
-                $meta['input'] = 'html';
-            }
+            $meta['input'] = 'html';
 
             switch ($input) {
             case 'select':
@@ -144,9 +144,10 @@ class WPUAttachMetas {
                 break;
             case 'number':
             case 'date':
+            case 'text':
             case 'email':
             case 'url':
-                $meta['html'] = '<input type="' . $input . '" class="text" ' . $field_idnamehtml . ' value="' . esc_attr($meta['value']) . '">';
+                $meta['html'] = '<input placeholder="' . $meta['placeholder'] . '" type="' . $input . '" class="text" ' . $field_idnamehtml . ' value="' . esc_attr($meta['value']) . '">';
                 break;
             }
 
@@ -213,49 +214,6 @@ class WPUAttachMetas {
 
             update_post_meta($attachment_id, $key, $new_value);
         }
-    }
-
-    public function admin_footer() {
-        echo <<<EOT
-<script>
-/* Delete image */
-jQuery('.azazazazaz .x').click(function(e) {
-    var \$this = jQuery(this),
-        \$parent = \$this.closest('.wpubasesettings-mediabox'),
-        \$imgPreview = \$parent.find('.img-preview');
-        \$imgField = \$parent.find('input[type="hidden"]');
-    e.preventDefault();
-    \$imgPreview.css({'display':'none'});
-    \$imgField.val('');
-});
-
-/* Add image */
-jQuery('.wpuattachmetas-image-link').click(function(e) {
-    var \$this = jQuery(this),
-        \$parent = \$this.parent(),
-        \$imgPreview = \$parent.find('img');
-        \$imgField = \$parent.find('input[type="hidden"]');
-
-    var frame = wp.media({multiple: false });
-
-    // When an image is selected in the media frame...
-    frame.on('select', function() {
-        var attachment = frame.state().get('selection').first().toJSON();
-        \$imgPreview.css({'display':'block'});
-        \$imgPreview.find('img').attr('src',attachment.url);
-        // Send the attachment id to our hidden input
-        \$imgField.val(attachment.id);
-        console.log(\$imgField);
-    });
-
-    // Finally, open the modal on click
-    frame.open();
-
-    e.preventDefault();
-});
-
-</script>
-EOT;
     }
 }
 
