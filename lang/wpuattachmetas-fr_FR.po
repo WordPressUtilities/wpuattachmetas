@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPU Attach Metas\n"
-"POT-Creation-Date: 2017-05-11 18:07+0200\n"
+"POT-Creation-Date: 2017-07-06 12:14+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Darklg <darklg.blog@gmail.com>\n"
 "Language-Team: \n"
@@ -15,22 +15,42 @@ msgstr ""
 "X-Poedit-KeywordsList: __;_e\n"
 "X-Poedit-SearchPath-0: ../.\n"
 
-#: .././wpuattachmetas.php:90
+#: .././inc/WPUBaseAdminPage/WPUBaseAdminPage.php:178
+msgid "Help"
+msgstr "Aide"
+
+#: .././wpuattachmetas.php:39 .././wpuattachmetas.php:91
+msgid "Search"
+msgstr "Recherche"
+
+#: .././wpuattachmetas.php:81
+msgid "Select a value"
+msgstr "Sélectionner une valeur"
+
+#: .././wpuattachmetas.php:86
+msgid "Or"
+msgstr "Ou"
+
+#: .././wpuattachmetas.php:95
+msgid "No results for this query"
+msgstr "Aucun résultat pour votre recherche"
+
+#: .././wpuattachmetas.php:203
 msgid "No"
 msgstr "Non"
 
-#: .././wpuattachmetas.php:90
+#: .././wpuattachmetas.php:203
 msgid "Yes"
 msgstr "Oui"
 
-#: .././wpuattachmetas.php:98
+#: .././wpuattachmetas.php:211
 msgid "Select"
 msgstr "Sélectionner"
 
-#: .././wpuattachmetas.php:121 .././wpuattachmetas.php:123
+#: .././wpuattachmetas.php:234 .././wpuattachmetas.php:236
 msgid "Change image"
 msgstr "Changer l’image"
 
-#: .././wpuattachmetas.php:121
+#: .././wpuattachmetas.php:234
 msgid "Add an image"
 msgstr "Ajouter une image"

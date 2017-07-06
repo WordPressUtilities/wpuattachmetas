@@ -4,7 +4,7 @@
 Plugin Name: WPU Attachments Metas
 Plugin URI: https://github.com/WordPressUtilities/wpuattachmetas
 Description: Metadatas for Attachments
-Version: 0.5.3
+Version: 0.6.0
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -14,12 +14,12 @@ License URI: http://opensource.org/licenses/MIT
 class WPUAttachMetas {
 
     private $pluginkey = 'wpuattach_';
-    private $pluginversion = '0.5.3';
+    private $pluginversion = '0.6.0';
 
     private $metas = array();
 
     public function __construct() {
-        add_action('wp_loaded', array(&$this, 'wp_loaded'));
+        add_action('plugins_loaded', array(&$this, 'plugins_loaded'));
         /* Display fields */
         add_filter('attachment_fields_to_edit', array(&$this, 'display_custom_fields'), 10, 2);
         /* Save values */
@@ -28,9 +28,122 @@ class WPUAttachMetas {
         add_action('admin_enqueue_scripts', array(&$this, 'admin_css'), 11);
     }
 
-    public function wp_loaded() {
+    public function plugins_loaded() {
         /* Load translation */
         load_plugin_textdomain('wpuattachmetas', false, dirname(plugin_basename(__FILE__)) . '/lang/');
+
+        include 'inc/WPUBaseAdminPage/WPUBaseAdminPage.php';
+        $admin_pages = array(
+            'search' => array(
+                'section' => 'upload.php',
+                'name' => __('Search', 'wpuattachmetas'),
+                'function_content' => array(&$this,
+                    'page_content__main'
+                ),
+                'function_action' => array(&$this,
+                    'page_action__main'
+                )
+            )
+        );
+
+        $pages_options = array(
+            'id' => 'wpuattachmetas',
+            'level' => 'upload_files',
+            'basename' => plugin_basename(__FILE__)
+        );
+
+        // Init admin page
+        $this->adminpages = new \wpuattachmetas\WPUBaseAdminPage();
+        $this->adminpages->init($pages_options, $admin_pages);
+
+    }
+
+    public function page_content__main() {
+        $metas = apply_filters('wpuattachmetas_metas', array());
+        $search_values = array();
+        $transient_results = 'wpuattachmetas_search_' . get_current_user_id();
+        $search = get_transient($transient_results);
+        if ($search !== false) {
+            $search_values = $search['values'];
+            delete_transient($transient_results);
+        }
+
+        echo '<table class="form-table"><tbody>';
+        foreach ($metas as $key => $meta) {
+            if (!isset($meta['search_enabled']) || !$meta['search_enabled']) {
+                continue;
+            }
+            $values = $this->get_values_for_meta($key);
+            echo '<tr>';
+            echo '<th scope="row"><label for="wpuattachmetas_key_' . $key . '">' . esc_html($meta['label']) . ' :</label></th>';
+            echo '<td>';
+            echo '<select style="max-width:300px" name="wpuattachmetas_key_' . $key . '" id="wpuattachmetas_key_' . $key . '">';
+            echo '<option value="">' . __('Select a value', 'wpuattachmetas') . '</option>';
+            foreach ($values as $value) {
+                echo '<option ' . (isset($search_values[$key]) && $search_values[$key] == $value ? 'selected' : '') . ' value="' . esc_attr($value) . '">' . esc_html($value) . '</option>';
+            }
+            echo '</select><br />';
+            echo __('Or', 'wpuattachmetas') . ' <input style="max-width:300px" name="wpuattachmetas_val_' . $key . '" id="wpuattachmetas_val_' . $key . '" value="' . (isset($search_values[$key]) ? esc_attr($search_values[$key]) : '') . '" />';
+            echo '</td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table>';
+        submit_button(__('Search', 'wpuattachmetas'), 'primary', 'wpuattachmetas_search');
+
+        if ($search !== false) {
+            if (empty($search['results'])) {
+                echo '<p>' . __('No results for this query', 'wpuattachmetas') . '</p>';
+            } else {
+                echo '<div>';
+                foreach ($search['results'] as $id) {
+                    $thumb_url = wp_get_attachment_image_src($id, 'thumbnail');
+                    if (!is_array($thumb_url)) {
+                        continue;
+                    }
+                    echo '<a href="' . get_edit_post_link($id) . '">';
+                    echo '<img height="100" width="100" style="object-fit:cover" src="' . $thumb_url[0] . '" alt="" />';
+                    echo '</a>';
+                }
+                echo '</div>';
+            }
+        }
+
+    }
+
+    public function page_action__main() {
+        global $wpdb;
+        $meta_query = array('relation' => 'AND');
+        $metas = apply_filters('wpuattachmetas_metas', array());
+        $search = array('results' => array(), 'values' => array());
+        foreach ($metas as $key => $meta) {
+            if (!isset($meta['search_enabled']) || !$meta['search_enabled']) {
+                continue;
+            }
+            if (!isset($_POST['wpuattachmetas_key_' . $key]) || empty($_POST['wpuattachmetas_key_' . $key])) {
+                continue;
+            }
+            $value = $_POST['wpuattachmetas_key_' . $key];
+            if (isset($_POST['wpuattachmetas_val_' . $key]) && !empty($_POST['wpuattachmetas_val_' . $key])) {
+                $value = $_POST['wpuattachmetas_val_' . $key];
+            }
+            $meta_query[] = array(
+                'key' => $key,
+                'value' => trim($value),
+                'compare' => 'LIKE'
+            );
+            $search['values'][$key] = $value;
+        }
+
+        if (count($meta_query) > 1) {
+            $search['results'] = get_posts(array(
+                'posts_per_page' => -1,
+                'post_type' => 'attachment',
+                'meta_query' => $meta_query,
+                'fields' => 'ids'
+            ));
+        }
+
+        set_transient('wpuattachmetas_search_' . get_current_user_id(), $search, 60);
     }
 
     public function admin_css() {
@@ -213,7 +326,32 @@ class WPUAttachMetas {
             }
 
             update_post_meta($attachment_id, $key, $new_value);
+            $this->get_values_for_meta($key, true);
         }
+    }
+
+    public function get_values_for_meta($key, $refresh = false) {
+
+        $cache_id = 'wpuattachmetas_' . $key . '_cached_values';
+
+        // GET CACHED VALUE
+        $values = wp_cache_get($cache_id);
+        if (!is_array($values) !== false || $refresh) {
+
+            // COMPUTE RESULT
+            global $wpdb;
+            $wpdb_values = $wpdb->get_results($wpdb->prepare("SELECT DISTINCT meta_value FROM $wpdb->postmeta WHERE meta_key='%s' AND meta_value <>'' ORDER BY meta_value ASC", $key));
+
+            $values = array();
+            foreach ($wpdb_values as $val) {
+                $values[] = $val->meta_value;
+            }
+
+            // CACHE RESULT
+            wp_cache_set($cache_id, $values, 'wpuattachmetas', 0);
+        }
+
+        return $values;
     }
 }
 
